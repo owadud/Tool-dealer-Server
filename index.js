@@ -1,5 +1,5 @@
 const express = require('express');
-const { MongoClient, ServerApiVersion } = require('mongodb');
+const { MongoClient, ServerApiVersion,ObjectId } = require('mongodb');
 const cors = require('cors');
 require('dotenv').config();
 
@@ -20,6 +20,7 @@ async function run(){
         await client.connect();
 
         const toolCollection = client.db('tools-database').collection('tools');
+        const orderCollection = client.db('tools-database').collection('orders');
 
         app.get('/tools',async(req,res) =>{
             const query ={};
@@ -29,6 +30,22 @@ async function run(){
 
 
         })
+
+        app.get('/order/:id',async(req, res)=>{
+            const id = req.params.id;
+            const query = {_id: ObjectId(id)};
+            const order = await toolCollection.findOne(query);
+            res.send(order);
+        })
+
+        //post -order 
+
+        app.post('/orders',async(req, res)=>{
+            const order = req.body;
+            const result = await orderCollection.insertOne(order);
+            res.send(result);
+        })
+
        
 
     }
