@@ -55,9 +55,42 @@ async function run() {
 
         //Get all user from the database to show on dashboard
 
-        app.get('/customers', async (req, res)=>{
+        app.get('/customers',verifyJWT, async (req, res)=>{
             const customers = await userCollection.find().toArray();
             res.send(customers);
+        })
+
+        //getting admin for not showing the user the all user option
+
+        app.get('/admin/:email', async (req, res)=>{
+            const email = req.params.email
+            const user = await userCollection.findOne({ email: email})
+            const isAdmin = user.role === 'admin';
+            res.send(isAdmin);
+        })
+
+        //creating admin Api 
+        app.put('/user/admin/:email',verifyJWT, async (req, res) => {
+            const email = req.params.email;
+            const requester = req.decoded.email;
+            const requesterAccount = await userCollection.findOne({email:requester})
+            if(requesterAccount.role ==='admin'){
+                const filter = { email: email };
+            
+                const updateDocument = {
+                    $set:{role:'admin'},
+                };
+                const result = await userCollection.updateOne(filter, updateDocument);
+                
+                res.send(result);
+            }
+            else{
+                res.status(403).send({ message: 'Access Denied' });
+            }
+
+
+           
+
         })
 
 
