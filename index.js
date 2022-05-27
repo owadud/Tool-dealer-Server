@@ -1,6 +1,9 @@
 const express = require('express');
 const { MongoClient, ServerApiVersion,ObjectId } = require('mongodb');
 const cors = require('cors');
+
+const jwt = require('jsonwebtoken');
+
 require('dotenv').config();
 
 const app = express();
@@ -21,6 +24,7 @@ async function run(){
 
         const toolCollection = client.db('tools-database').collection('tools');
         const orderCollection = client.db('tools-database').collection('orders');
+        const userCollection = client.db('tools-database').collection('user');
 
         app.get('/tools',async(req,res) =>{
             const query ={};
@@ -31,11 +35,38 @@ async function run(){
 
         })
 
+        //put for the user 
+        app.put('/user/:email', async(req, res)=>{
+            const email = req.params.email;
+            const user = req.body;
+            const filter ={email: email};
+            const options = {upsert: true};
+            const updateDocument ={
+                $set:user,
+            };
+            const result = await userCollection.updateOne(filter,updateDocument, options);
+            const token = jwt.sign({email:email }, process.env.ACCESS_TOKEN_USER);
+            res.send({result,token});
+
+        })
+
+
         app.get('/order/:id',async(req, res)=>{
             const id = req.params.id;
             const query = {_id: ObjectId(id)};
             const order = await toolCollection.findOne(query);
             res.send(order);
+        })
+
+        //getting form user 
+        app.get('/orders',async(req, res)=>{
+
+            const customer = req.query.customer;
+            const query = {customer: customer};
+            const order = await orderCollection.find(query).toArray();
+            res.send(order);
+
+
         })
 
         //post -order 
