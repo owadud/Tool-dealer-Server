@@ -45,6 +45,8 @@ async function run() {
         const userCollection = client.db('tools-database').collection('user');
         const reviewCollection = client.db('tools-database').collection('reviews');
 
+
+        //getting for items
         app.get('/tools', async (req, res) => {
             const query = {};
             const cursor = toolCollection.find(query);
@@ -105,6 +107,15 @@ async function run() {
                 return res.status(403).send({ message:"Forbidden Request"});
             }
            
+
+
+        })
+        // getting review
+        app.get('/reviews', async (req, res) => {
+            const query = {};
+            const cursor = reviewCollection.find(query);
+            const reviews = await cursor.toArray();
+            res.send(reviews);
 
 
         })
