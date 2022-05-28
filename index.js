@@ -77,6 +77,8 @@ async function run() {
             res.send({ admin: isAdmin });
         })
 
+        //
+
        
 
 
@@ -106,7 +108,7 @@ async function run() {
 
         })
 
-        //post -order 
+        //post -order  
 
         app.post('/orders', async (req, res) => {
             const order = req.body;
@@ -119,11 +121,30 @@ async function run() {
             res.send({ success: true, result });
         })
 
+        //INSERT ITEM FROM THE ADMIN 
         app.post('/tools', async (req, res)=>{
             const tool = req.body;
             const result = await toolCollection.insertOne(tool);
             res.send(result);
         })
+
+        //DELETE ITEM
+        app.delete('/tools/:id',verifyJWT, async (req, res)=>{
+            const id = req.params.id;
+            const filter = {_id: ObjectId(id)};
+           
+            const result = await toolCollection.deleteOne(filter);
+            res.send(result);
+        })
+
+        //Deleting user 
+        app.delete('/user/:email',verifyJWT, async (req, res)=>{
+            const email = req.params.email;
+            const filter = {email: email};   
+            const result = await userCollection.deleteOne(filter);
+            res.send(result);
+        })
+
 
 
 
