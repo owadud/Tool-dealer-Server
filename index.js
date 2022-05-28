@@ -43,6 +43,7 @@ async function run() {
         const toolCollection = client.db('tools-database').collection('tools');
         const orderCollection = client.db('tools-database').collection('orders');
         const userCollection = client.db('tools-database').collection('user');
+        const reviewCollection = client.db('tools-database').collection('reviews');
 
         app.get('/tools', async (req, res) => {
             const query = {};
@@ -118,6 +119,19 @@ async function run() {
                 return res.send({ success: false, order: exists })
             }
             const result = await orderCollection.insertOne(order);
+            res.send({ success: true, result });
+        })
+
+        //post for the reviews
+
+        app.post('/reviews', async (req, res) => {
+            const review = req.body;
+            const query = { name: review.name }
+            const exists = await reviewCollection.findOne(query);
+            if (exists) {
+                return res.send({ success: false, review: exists })
+            }
+            const result = await reviewCollection.insertOne(review);
             res.send({ success: true, result });
         })
 
